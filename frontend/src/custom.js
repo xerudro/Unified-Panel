@@ -49,11 +49,15 @@ const ClipboardManager = {
       // Show feedback
       const originalText = button.innerHTML;
       button.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
-      lucide.createIcons();
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
 
       setTimeout(() => {
         button.innerHTML = originalText;
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
       }, 2000);
     });
   }

@@ -23,12 +23,16 @@ impl HetznerClient {
         }
     }
 
-    async fn request<T: serde::de::DeserializeOwned>(
+    async fn request<T, B>(
         &self,
         method: reqwest::Method,
         endpoint: &str,
-        body: Option<impl serde::Serialize>,
-    ) -> Result<T, AppError> {
+        body: Option<B>,
+    ) -> Result<T, AppError>
+    where
+        T: serde::de::DeserializeOwned,
+        B: serde::Serialize,
+    {
         let url = format!("{}{}", HETZNER_API_URL, endpoint);
 
         let mut req = self.client
@@ -183,6 +187,8 @@ pub async fn create_vps(
 
     // Save to database
     let vps_result = sqlx::query_as::<_, Vps>(
+    // Save to database - if this fails, rollback by deleting the Hetzner server
+    let vps = sqlx::query_as::<_, Vps>(
         "INSERT INTO vps (
             id, user_id, name, hetzner_id, status, server_type, location, image,
             ipv4, ipv6, cpu_cores, ram_gb, disk_gb, monthly_cost, created_at, updated_at
@@ -225,6 +231,20 @@ pub async fn create_vps(
             Err(AppError::from(e))
         }
     }
+    .await
+    .map_err(|e| {
+        // Database insert failed - attempt to clean up the Hetzner server
+        let hetzner_id = hetzner_server.id;
+        let client = hetzner_client.clone();
+        tokio::spawn(async move {
+            if let Err(cleanup_err) = client.delete_server(hetzner_id).await {
+                tracing::error!("Failed to cleanup Hetzner server {} after database error: {}", hetzner_id, cleanup_err);
+            }
+        });
+        e
+    })?;
+
+    Ok(vps)
 }
 
 pub async fn update_vps(
