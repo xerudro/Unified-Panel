@@ -107,9 +107,12 @@
 
         <!-- Page Content -->
         <main class="flex-1 p-6 bg-gray-50 dark:bg-gray-900 overflow-auto">
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Stat Card 1 -->
+            <!-- Stats Grid with HTMX auto-refresh -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                 hx-get="/api/dashboard/stats"
+                 hx-trigger="load, every 30s"
+                 hx-swap="outerHTML">
+                <!-- Stat Card 1 - Servers -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow animate-fade-in">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
@@ -119,11 +122,11 @@
                             +12%
                         </span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-1">24</h3>
+                    <h3 class="text-2xl font-bold mb-1">{{ total_servers | default(value="0") }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Total Servers</p>
                 </div>
 
-                <!-- Stat Card 2 -->
+                <!-- Stat Card 2 - Websites -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow animate-fade-in" style="animation-delay: 0.1s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
@@ -133,11 +136,11 @@
                             +8%
                         </span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-1">142</h3>
+                    <h3 class="text-2xl font-bold mb-1">{{ total_websites | default(value="0") }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Active Websites</p>
                 </div>
 
-                <!-- Stat Card 3 -->
+                <!-- Stat Card 3 - Users -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow animate-fade-in" style="animation-delay: 0.2s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
@@ -147,11 +150,11 @@
                             +24%
                         </span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-1">89</h3>
+                    <h3 class="text-2xl font-bold mb-1">{{ total_users | default(value="0") }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Users</p>
                 </div>
 
-                <!-- Stat Card 4 -->
+                <!-- Stat Card 4 - Uptime -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow animate-fade-in" style="animation-delay: 0.3s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
@@ -168,10 +171,21 @@
 
             <!-- Content Grid -->
             <div class="grid lg:grid-cols-2 gap-6">
-                <!-- Recent Activity -->
+                <!-- Recent Activity with HTMX -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                    <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
-                    <div class="space-y-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Recent Activity</h3>
+                        <button class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                hx-get="/api/dashboard/activity"
+                                hx-target="#activity-list"
+                                hx-swap="innerHTML">
+                            Refresh
+                        </button>
+                    </div>
+                    <div id="activity-list" class="space-y-4"
+                         hx-get="/api/dashboard/activity"
+                         hx-trigger="load, every 60s"
+                         hx-swap="innerHTML">
                         <div class="flex items-start space-x-3">
                             <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                             <div class="flex-1">
@@ -196,17 +210,20 @@
                     </div>
                 </div>
 
-                <!-- System Health -->
+                <!-- System Health with HTMX -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
                     <h3 class="text-lg font-semibold mb-4">System Health</h3>
-                    <div class="space-y-4">
+                    <div id="system-health" class="space-y-4"
+                         hx-get="/api/dashboard/health"
+                         hx-trigger="load, every 10s"
+                         hx-swap="innerHTML">
                         <div>
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-medium">CPU Usage</span>
                                 <span class="text-sm text-gray-600 dark:text-gray-400">45%</span>
                             </div>
                             <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" style="width: 45%"></div>
+                                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500" style="width: 45%"></div>
                             </div>
                         </div>
                         <div>
@@ -215,7 +232,7 @@
                                 <span class="text-sm text-gray-600 dark:text-gray-400">62%</span>
                             </div>
                             <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full" style="width: 62%"></div>
+                                <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-500" style="width: 62%"></div>
                             </div>
                         </div>
                         <div>
@@ -224,7 +241,100 @@
                                 <span class="text-sm text-gray-600 dark:text-gray-400">38%</span>
                             </div>
                             <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" style="width: 38%"></div>
+                                <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500" style="width: 38%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Overview -->
+            <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">Server Overview</h3>
+                    <a href="/servers" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">View All</a>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
+                     hx-get="/api/dashboard/servers"
+                     hx-trigger="load"
+                     hx-swap="innerHTML">
+                    <!-- Server Card 1 -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="font-medium">web-prod-01</span>
+                            </div>
+                            <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
+                                Active
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">CPU</span>
+                                <span class="font-medium">45%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Memory</span>
+                                <span class="font-medium">62%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Location</span>
+                                <span class="font-medium">US-East</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Server Card 2 -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="font-medium">web-prod-02</span>
+                            </div>
+                            <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
+                                Active
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">CPU</span>
+                                <span class="font-medium">38%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Memory</span>
+                                <span class="font-medium">54%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Location</span>
+                                <span class="font-medium">US-West</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Server Card 3 -->
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                <span class="font-medium">db-prod-01</span>
+                            </div>
+                            <span class="text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2 py-1 rounded-full">
+                                Maintenance
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">CPU</span>
+                                <span class="font-medium">12%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Memory</span>
+                                <span class="font-medium">28%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Location</span>
+                                <span class="font-medium">EU-Central</span>
                             </div>
                         </div>
                     </div>

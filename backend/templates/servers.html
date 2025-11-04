@@ -12,19 +12,192 @@
 
         <!-- Page Content -->
         <main class="flex-1 p-6 bg-gray-50 dark:bg-gray-900 overflow-auto">
-            <div class="mb-6 flex items-center justify-between">
-                <h2 class="text-2xl font-bold">Servers</h2>
-                <button class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all">
+            <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold">Servers</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage and monitor your infrastructure</p>
+                </div>
+                <button class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all"
+                        x-data @click="$dispatch('open-modal', { modal: 'add-server' })">
                     <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
                     Add Server
                 </button>
             </div>
 
+            <!-- Filter & Search Bar -->
+            <div class="mb-6 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="search"
+                                   placeholder="Search servers..."
+                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                   hx-get="/api/servers"
+                                   hx-trigger="keyup changed delay:500ms"
+                                   hx-target="#servers-list"
+                                   name="search">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <select class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            hx-get="/api/servers"
+                            hx-trigger="change"
+                            hx-target="#servers-list"
+                            name="status">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="stopped">Stopped</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                    <select class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            hx-get="/api/servers"
+                            hx-trigger="change"
+                            hx-target="#servers-list"
+                            name="location">
+                        <option value="all">All Locations</option>
+                        <option value="us-east">US-East</option>
+                        <option value="us-west">US-West</option>
+                        <option value="eu-central">EU-Central</option>
+                        <option value="ap-south">AP-South</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Active</p>
+                            <p class="text-xl font-bold">18</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                            <i data-lucide="x-circle" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Stopped</p>
+                            <p class="text-xl font-bold">2</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-600 dark:text-yellow-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Maintenance</p>
+                            <p class="text-xl font-bold">4</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                            <i data-lucide="server" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total</p>
+                            <p class="text-xl font-bold">24</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Servers List -->
-            <div class="grid gap-6" hx-get="/api/servers" hx-trigger="load" hx-swap="innerHTML">
+            <div id="servers-list"
+                 class="grid gap-4"
+                 hx-get="/api/servers"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+                <!-- Loading state -->
                 <div class="text-center py-12">
                     <div class="animate-pulse-slow inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
                     <p class="mt-4 text-gray-600 dark:text-gray-400">Loading servers...</p>
+                </div>
+            </div>
+
+            <!-- Server Cards Template (this would be replaced by HTMX) -->
+            <div class="hidden" id="server-cards-template">
+                <!-- Server Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                                <i data-lucide="server" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg">web-prod-01</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">192.168.1.100</p>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-3 py-1 rounded-full font-medium">
+                            Active
+                        </span>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">CPU</p>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full" style="width: 45%"></div>
+                                </div>
+                                <span class="text-xs font-medium">45%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Memory</p>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-green-500 rounded-full" style="width: 62%"></div>
+                                </div>
+                                <span class="text-xs font-medium">62%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Disk</p>
+                            <div class="flex items-center space-x-2">
+                                <div class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-purple-500 rounded-full" style="width: 38%"></div>
+                                </div>
+                                <span class="text-xs font-medium">38%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info & Actions -->
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-4 text-sm">
+                            <div class="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                <span>US-East</span>
+                            </div>
+                            <div class="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                <span>Uptime: 99.9%</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Restart">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Settings">
+                                <i data-lucide="settings" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors" title="Stop">
+                                <i data-lucide="power" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
