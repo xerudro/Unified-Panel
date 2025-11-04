@@ -1,7 +1,10 @@
 use crate::{
     config::Config,
     database::DbPool,
-    models::{auth::*, user::{User, UserRole}},
+    models::{
+        auth::*,
+        user::{User, UserRole},
+    },
     utils::{errors::AppError, jwt, password},
 };
 use chrono::Utc;
@@ -13,13 +16,11 @@ pub async fn login(
     payload: LoginRequest,
 ) -> Result<(String, User), AppError> {
     // Find user by email
-    let user = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE email = $1"
-    )
-    .bind(&payload.email)
-    .fetch_optional(db)
-    .await?
-    .ok_or(AppError::Unauthorized("Invalid credentials".to_string()))?;
+    let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1")
+        .bind(&payload.email)
+        .fetch_optional(db)
+        .await?
+        .ok_or(AppError::Unauthorized("Invalid credentials".to_string()))?;
 
     // Verify password
     if !password::verify_password(&payload.password, &user.password_hash)? {
@@ -29,7 +30,9 @@ pub async fn login(
     // Check MFA if enabled
     if user.mfa_enabled {
         if let Some(totp_code) = payload.totp_code {
-            let secret = user.mfa_secret.as_ref()
+            let secret = user
+                .mfa_secret
+                .as_ref()
                 .ok_or(AppError::Unauthorized("MFA secret not found".to_string()))?;
 
             if !verify_totp(&totp_code, secret)? {
@@ -43,7 +46,7 @@ pub async fn login(
     // Log login attempt
     sqlx::query(
         "INSERT INTO login_attempts (email, ip_address, success, attempted_at)
-         VALUES ($1, $2, $3, $4)"
+         VALUES ($1, $2, $3, $4)",
     )
     .bind(&payload.email)
     .bind("0.0.0.0") // TODO: Get real IP from request
@@ -58,17 +61,12 @@ pub async fn login(
     Ok((token, user))
 }
 
-pub async fn register(
-    db: &DbPool,
-    payload: RegisterRequest,
-) -> Result<User, AppError> {
+pub async fn register(db: &DbPool, payload: RegisterRequest) -> Result<User, AppError> {
     // Check if user already exists
-    let existing = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE email = $1"
-    )
-    .bind(&payload.email)
-    .fetch_optional(db)
-    .await?;
+    let existing = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1")
+        .bind(&payload.email)
+        .fetch_optional(db)
+        .await?;
 
     if existing.is_some() {
         return Err(AppError::BadRequest("Email already registered".to_string()));
@@ -98,19 +96,16 @@ pub async fn register(
 }
 
 fn verify_totp(code: &str, secret: &str) -> Result<bool, AppError> {
-    use totp_rs::{TOTP, Algorithm, Secret};
+    use totp_rs::{Algorithm, Secret, TOTP};
 
-    let secret = Secret::Encoded(secret.to_string()).to_bytes()
+    let secret = Secret::Encoded(secret.to_string())
+        .to_bytes()
         .map_err(|_| AppError::InternalError("Invalid TOTP secret".to_string()))?;
 
-    let totp = TOTP::new(
-        Algorithm::SHA1,
-        6,
-        1,
-        30,
-        secret,
-    ).map_err(|_| AppError::InternalError("Failed to create TOTP".to_string()))?;
+    let totp = TOTP::new(Algorithm::SHA1, 6, 1, 30, secret)
+        .map_err(|_| AppError::InternalError("Failed to create TOTP".to_string()))?;
 
-    Ok(totp.check_current(code)
+    Ok(totp
+        .check_current(code)
         .map_err(|_| AppError::Unauthorized("Invalid TOTP code".to_string()))?)
 }

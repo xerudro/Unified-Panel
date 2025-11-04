@@ -1,13 +1,13 @@
+use crate::{
+    models::{auth::*, user::UserResponse, AppState},
+    services::auth_service,
+    utils::errors::AppError,
+};
 use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
     Json,
-};
-use crate::{
-    models::{auth::*, AppState, user::UserResponse},
-    services::auth_service,
-    utils::errors::AppError,
 };
 
 pub async fn login(

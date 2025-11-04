@@ -1,8 +1,4 @@
-use crate::{
-    database::DbPool,
-    models::vps::*,
-    utils::errors::AppError,
-};
+use crate::{database::DbPool, models::vps::*, utils::errors::AppError};
 use chrono::Utc;
 use reqwest;
 use uuid::Uuid;
@@ -35,7 +31,8 @@ impl HetznerClient {
     {
         let url = format!("{}{}", HETZNER_API_URL, endpoint);
 
-        let mut req = self.client
+        let mut req = self
+            .client
             .request(method, &url)
             .header("Authorization", format!("Bearer {}", self.api_token));
 
@@ -43,47 +40,52 @@ impl HetznerClient {
             req = req.json(&body);
         }
 
-        let response = req.send().await
+        let response = req
+            .send()
+            .await
             .map_err(|e| AppError::InternalError(format!("Hetzner API request failed: {}", e)))?;
 
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(AppError::InternalError(
-                format!("Hetzner API error {}: {}", status, error_text)
-            ));
+            return Err(AppError::InternalError(format!(
+                "Hetzner API error {}: {}",
+                status, error_text
+            )));
         }
 
-        response.json().await
-            .map_err(|e| AppError::InternalError(format!("Failed to parse Hetzner response: {}", e)))
+        response.json().await.map_err(|e| {
+            AppError::InternalError(format!("Failed to parse Hetzner response: {}", e))
+        })
     }
 
-    pub async fn create_server(&self, request: HetznerCreateServerRequest) -> Result<HetznerServer, AppError> {
-        let response: HetznerServerResponse = self.request(
-            reqwest::Method::POST,
-            "/servers",
-            Some(request),
-        ).await?;
+    pub async fn create_server(
+        &self,
+        request: HetznerCreateServerRequest,
+    ) -> Result<HetznerServer, AppError> {
+        let response: HetznerServerResponse = self
+            .request(reqwest::Method::POST, "/servers", Some(request))
+            .await?;
 
         Ok(response.server)
     }
 
     pub async fn get_server(&self, server_id: i64) -> Result<HetznerServer, AppError> {
-        let response: HetznerServerResponse = self.request(
-            reqwest::Method::GET,
-            &format!("/servers/{}", server_id),
-            None::<()>,
-        ).await?;
+        let response: HetznerServerResponse = self
+            .request(
+                reqwest::Method::GET,
+                &format!("/servers/{}", server_id),
+                None::<()>,
+            )
+            .await?;
 
         Ok(response.server)
     }
 
     pub async fn list_servers(&self) -> Result<Vec<HetznerServer>, AppError> {
-        let response: HetznerServersResponse = self.request(
-            reqwest::Method::GET,
-            "/servers",
-            None::<()>,
-        ).await?;
+        let response: HetznerServersResponse = self
+            .request(reqwest::Method::GET, "/servers", None::<()>)
+            .await?;
 
         Ok(response.servers)
     }
@@ -93,7 +95,8 @@ impl HetznerClient {
             reqwest::Method::DELETE,
             &format!("/servers/{}", server_id),
             None::<()>,
-        ).await?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -103,7 +106,8 @@ impl HetznerClient {
             reqwest::Method::POST,
             &format!("/servers/{}/actions/poweron", server_id),
             None::<()>,
-        ).await?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -113,7 +117,8 @@ impl HetznerClient {
             reqwest::Method::POST,
             &format!("/servers/{}/actions/poweroff", server_id),
             None::<()>,
-        ).await?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -123,7 +128,8 @@ impl HetznerClient {
             reqwest::Method::POST,
             &format!("/servers/{}/actions/reboot", server_id),
             None::<()>,
-        ).await?;
+        )
+        .await?;
 
         Ok(())
     }
@@ -132,31 +138,25 @@ impl HetznerClient {
 // Database operations
 pub async fn list_vps(db: &DbPool, user_id: Option<Uuid>) -> Result<Vec<Vps>, AppError> {
     let vps = if let Some(uid) = user_id {
-        sqlx::query_as::<_, Vps>(
-            "SELECT * FROM vps WHERE user_id = $1 ORDER BY created_at DESC"
-        )
-        .bind(uid)
-        .fetch_all(db)
-        .await?
+        sqlx::query_as::<_, Vps>("SELECT * FROM vps WHERE user_id = $1 ORDER BY created_at DESC")
+            .bind(uid)
+            .fetch_all(db)
+            .await?
     } else {
-        sqlx::query_as::<_, Vps>(
-            "SELECT * FROM vps ORDER BY created_at DESC"
-        )
-        .fetch_all(db)
-        .await?
+        sqlx::query_as::<_, Vps>("SELECT * FROM vps ORDER BY created_at DESC")
+            .fetch_all(db)
+            .await?
     };
 
     Ok(vps)
 }
 
 pub async fn get_vps(db: &DbPool, id: Uuid) -> Result<Vps, AppError> {
-    let vps = sqlx::query_as::<_, Vps>(
-        "SELECT * FROM vps WHERE id = $1"
-    )
-    .bind(id)
-    .fetch_optional(db)
-    .await?
-    .ok_or(AppError::NotFound("VPS not found".to_string()))?;
+    let vps = sqlx::query_as::<_, Vps>("SELECT * FROM vps WHERE id = $1")
+        .bind(id)
+        .fetch_optional(db)
+        .await?
+        .ok_or(AppError::NotFound("VPS not found".to_string()))?;
 
     Ok(vps)
 }
@@ -181,7 +181,9 @@ pub async fn create_vps(
     let hetzner_server = hetzner_client.create_server(hetzner_request).await?;
 
     // Extract pricing
-    let monthly_cost = hetzner_server.server_type.prices
+    let monthly_cost = hetzner_server
+        .server_type
+        .prices
         .first()
         .and_then(|p| p.price_monthly.gross.parse::<f64>().ok());
 
@@ -192,7 +194,7 @@ pub async fn create_vps(
             ipv4, ipv6, cpu_cores, ram_gb, disk_gb, monthly_cost, created_at, updated_at
          )
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-         RETURNING *"
+         RETURNING *",
     )
     .bind(Uuid::new_v4())
     .bind(user_id)
@@ -202,8 +204,20 @@ pub async fn create_vps(
     .bind(&hetzner_server.server_type.name)
     .bind(&hetzner_server.datacenter.location.name)
     .bind(&hetzner_server.image.name)
-    .bind(hetzner_server.public_net.ipv4.as_ref().map(|ip| ip.ip.clone()))
-    .bind(hetzner_server.public_net.ipv6.as_ref().map(|ip| ip.ip.clone()))
+    .bind(
+        hetzner_server
+            .public_net
+            .ipv4
+            .as_ref()
+            .map(|ip| ip.ip.clone()),
+    )
+    .bind(
+        hetzner_server
+            .public_net
+            .ipv6
+            .as_ref()
+            .map(|ip| ip.ip.clone()),
+    )
     .bind(hetzner_server.server_type.cores)
     .bind((hetzner_server.server_type.memory / 1024.0) as i32)
     .bind(hetzner_server.server_type.disk)
@@ -221,9 +235,10 @@ pub async fn create_vps(
             if let Err(delete_err) = hetzner_client.delete_server(hetzner_server.id).await {
                 // Log the deletion error but return the original database error
                 tracing::error!(
-                    "Failed to rollback Hetzner server {} after database error: {:?}",
+                    "Failed to rollback Hetzner server {} after database error: {}. Original DB error: {:?}",
                     hetzner_server.id,
-                    delete_err
+                    delete_err,
+                    e
                 );
             }
             Err(AppError::from(e))
@@ -231,11 +246,7 @@ pub async fn create_vps(
     }
 }
 
-pub async fn update_vps(
-    db: &DbPool,
-    id: Uuid,
-    payload: UpdateVps,
-) -> Result<Vps, AppError> {
+pub async fn update_vps(db: &DbPool, id: Uuid, payload: UpdateVps) -> Result<Vps, AppError> {
     let mut vps = get_vps(db, id).await?;
 
     if let Some(name) = payload.name {
@@ -249,7 +260,7 @@ pub async fn update_vps(
         "UPDATE vps
          SET name = $1, status = $2, updated_at = $3
          WHERE id = $4
-         RETURNING *"
+         RETURNING *",
     )
     .bind(&vps.name)
     .bind(&vps.status)
@@ -300,11 +311,23 @@ pub async fn sync_vps_status(
             "UPDATE vps
              SET status = $1, ipv4 = $2, ipv6 = $3, updated_at = $4
              WHERE id = $5
-             RETURNING *"
+             RETURNING *",
         )
         .bind(&hetzner_server.status)
-        .bind(hetzner_server.public_net.ipv4.as_ref().map(|ip| ip.ip.clone()))
-        .bind(hetzner_server.public_net.ipv6.as_ref().map(|ip| ip.ip.clone()))
+        .bind(
+            hetzner_server
+                .public_net
+                .ipv4
+                .as_ref()
+                .map(|ip| ip.ip.clone()),
+        )
+        .bind(
+            hetzner_server
+                .public_net
+                .ipv6
+                .as_ref()
+                .map(|ip| ip.ip.clone()),
+        )
         .bind(Utc::now())
         .bind(id)
         .fetch_one(db)

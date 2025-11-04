@@ -13,10 +13,7 @@ use axum::{
 };
 use std::net::SocketAddr;
 use tower_http::{
-    compression::CompressionLayer,
-    cors::CorsLayer,
-    services::ServeDir,
-    trace::TraceLayer,
+    compression::CompressionLayer, cors::CorsLayer, services::ServeDir, trace::TraceLayer,
 };
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -39,9 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_pool = database::create_pool(&config.database_url).await?;
 
     // Run migrations
-    sqlx::migrate!("./migrations")
-        .run(&db_pool)
-        .await?;
+    sqlx::migrate!("./migrations").run(&db_pool).await?;
 
     tracing::info!("Database migrations completed successfully");
 
@@ -58,7 +53,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/auth/register", post(api::auth::register))
         // API routes
         .nest("/api", api::router())
-
         // Dashboard routes (protected)
         .route("/dashboard", get(handlers::pages::dashboard))
         .route("/servers", get(handlers::pages::servers_page))
@@ -66,15 +60,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/users", get(handlers::pages::users_page))
         .route("/monitoring", get(handlers::pages::monitoring_page))
         .route("/settings", get(handlers::pages::settings_page))
-
         // Static files
         .nest_service("/static", ServeDir::new("static"))
-
         // Middleware
         .layer(CompressionLayer::new())
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::permissive())
-
         // State
         .with_state(app_state);
 

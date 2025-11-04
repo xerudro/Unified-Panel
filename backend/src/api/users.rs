@@ -1,13 +1,13 @@
-use axum::{
-    extract::{Path, State},
-    Json,
-};
-use uuid::Uuid;
 use crate::{
     models::{user::*, AppState},
     services::user_service,
     utils::errors::AppError,
 };
+use axum::{
+    extract::{Path, State},
+    Json,
+};
+use uuid::Uuid;
 
 pub async fn list_users(
     State(state): State<AppState>,
