@@ -5,6 +5,7 @@ use std::sync::Arc;
 pub mod user;
 pub mod server;
 pub mod auth;
+pub mod vps;
 
 #[derive(Clone)]
 pub struct AppState {

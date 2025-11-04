@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}VPS Management - Unified Hosting Panel{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex" x-data="{ sidebarOpen: true, showCreateModal: false }">
+    {% include "components/sidebar.html" %}
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" :class="{ 'ml-64': sidebarOpen }">
+        {% include "components/topbar.html" %}
+
+        <!-- Page Content -->
+        <main class="flex-1 p-6 bg-gray-50 dark:bg-gray-900 overflow-auto">
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold">VPS Management</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage your Hetzner Cloud VPS instances</p>
+                </div>
+                <button @click="showCreateModal = true"
+                        class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center space-x-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Create VPS</span>
+                </button>
+            </div>
+
+            <!-- VPS Grid -->
+            <div id="vps-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+                 hx-get="/api/vps"
+                 hx-trigger="load, every 30s"
+                 hx-swap="innerHTML">
+                <div class="text-center py-12 col-span-full">
+                    <div class="animate-pulse-slow inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                    <p class="mt-4 text-gray-600 dark:text-gray-400">Loading VPS instances...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create VPS Modal -->
+    <div x-show="showCreateModal"
+         x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+         @click.away="showCreateModal = false">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+             @click.stop>
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-bold">Create New VPS</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Deploy a new VPS on Hetzner Cloud</p>
+            </div>
+
+            <form hx-post="/api/vps"
+                  hx-target="#vps-list"
+                  hx-swap="afterbegin"
+                  @htmx:after-request="showCreateModal = false"
+                  class="p-6 space-y-5">
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">Server Name</label>
+                    <input type="text"
+                           name="name"
+                           required
+                           placeholder="my-vps-server"
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Server Type</label>
+                        <select name="server_type"
+                                required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                            <option value="cx11">CX11 - 1 vCPU, 2GB RAM (€4.15/mo)</option>
+                            <option value="cx21">CX21 - 2 vCPU, 4GB RAM (€7.05/mo)</option>
+                            <option value="cx31">CX31 - 2 vCPU, 8GB RAM (€12.60/mo)</option>
+                            <option value="cx41">CX41 - 4 vCPU, 16GB RAM (€23.40/mo)</option>
+                            <option value="cx51">CX51 - 8 vCPU, 32GB RAM (€44.10/mo)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Location</label>
+                        <select name="location"
+                                required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                            <option value="nbg1">Nuremberg, Germany</option>
+                            <option value="fsn1">Falkenstein, Germany</option>
+                            <option value="hel1">Helsinki, Finland</option>
+                            <option value="ash">Ashburn, USA</option>
+                            <option value="hil">Hillsboro, USA</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">Operating System</label>
+                    <select name="image"
+                            required
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500">
+                        <option value="ubuntu-22.04">Ubuntu 22.04 LTS</option>
+                        <option value="ubuntu-20.04">Ubuntu 20.04 LTS</option>
+                        <option value="debian-11">Debian 11</option>
+                        <option value="debian-12">Debian 12</option>
+                        <option value="centos-stream-9">CentOS Stream 9</option>
+                        <option value="rocky-9">Rocky Linux 9</option>
+                        <option value="fedora-39">Fedora 39</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">Cloud-Init User Data (Optional)</label>
+                    <textarea name="user_data"
+                              rows="4"
+                              placeholder="#!/bin/bash&#10;apt update&#10;apt install -y nginx"
+                              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 font-mono text-sm"></textarea>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Cloud-init script to run on first boot</p>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button type="button"
+                            @click="showCreateModal = false"
+                            class="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all">
+                        Create VPS
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Use global VPSStatus.getColor instead of local getStatusColor
+    // Example: window.VPSStatus.getColor(status)
+</script>
+{% endblock %}

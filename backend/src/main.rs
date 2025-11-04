@@ -62,6 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Dashboard routes (protected)
         .route("/dashboard", get(handlers::pages::dashboard))
         .route("/servers", get(handlers::pages::servers_page))
+        .route("/vps", get(handlers::pages::vps_page))
         .route("/users", get(handlers::pages::users_page))
         .route("/monitoring", get(handlers::pages::monitoring_page))
         .route("/settings", get(handlers::pages::settings_page))

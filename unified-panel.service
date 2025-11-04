@@ -1,0 +1,51 @@
+[Unit]
+Description=Unified Hosting Panel
+Documentation=https://github.com/xerudro/unified-panel
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=unified-panel
+Group=unified-panel
+WorkingDirectory=/opt/unified-panel/backend
+
+# Environment
+Environment="DATABASE_URL=postgresql://panel_user:YOUR_PASSWORD@localhost/unified_panel"
+Environment="JWT_SECRET=YOUR_SUPER_SECRET_JWT_KEY"
+Environment="SESSION_SECRET=YOUR_SESSION_SECRET"
+Environment="HETZNER_API_TOKEN=YOUR_HETZNER_TOKEN"
+Environment="RUST_LOG=info"
+Environment="HOST=0.0.0.0"
+Environment="PORT=3000"
+
+# Alternatively, use an environment file
+# EnvironmentFile=/etc/unified-panel/panel.env
+
+# Binary
+ExecStart=/opt/unified-panel/backend/target/release/unified-panel
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitInterval=200
+StartLimitBurst=5
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/unified-panel/backend/static
+
+# Limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=unified-panel
+
+[Install]
+WantedBy=multi-user.target

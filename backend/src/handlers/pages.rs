@@ -35,6 +35,10 @@ struct MonitoringTemplate {}
 #[template(path = "settings.html")]
 struct SettingsTemplate {}
 
+#[derive(Template)]
+#[template(path = "vps.html")]
+struct VpsTemplate {}
+
 pub async fn index() -> impl IntoResponse {
     let template = IndexTemplate {};
     Html(template.render().unwrap())
@@ -75,5 +79,10 @@ pub async fn monitoring_page() -> impl IntoResponse {
 
 pub async fn settings_page() -> impl IntoResponse {
     let template = SettingsTemplate {};
+    Html(template.render().unwrap())
+}
+
+pub async fn vps_page() -> impl IntoResponse {
+    let template = VpsTemplate {};
     Html(template.render().unwrap())
 }

@@ -1,0 +1,26 @@
+{
+  "name": "unified-panel-frontend",
+  "version": "0.1.0",
+  "description": "Frontend assets for Unified Hosting Panel",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/styles.css -o ../backend/static/css/main.css --minify",
+    "watch:css": "tailwindcss -i ./src/styles.css -o ../backend/static/css/main.css --watch",
+    "dev": "npm run watch:css",
+    "build": "npm run build:css"
+  },
+  "keywords": [
+    "tailwind",
+    "css",
+    "hosting",
+    "panel"
+  ],
+  "author": "Unified Panel Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0"
+  }
+}
