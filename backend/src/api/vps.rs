@@ -29,16 +29,10 @@ pub async fn create_vps(
     State(state): State<AppState>,
     Json(payload): Json<CreateVps>,
 ) -> Result<Json<Vps>, AppError> {
-    // Get Hetzner API token from config
-    let hetzner_token = std::env::var("HETZNER_API_TOKEN")
-        .map_err(|_| AppError::InternalError("HETZNER_API_TOKEN not set".to_string()))?;
-
-    let hetzner_client = HetznerClient::new(hetzner_token);
-
     // TODO: Get user_id from JWT
     let user_id = Uuid::new_v4(); // Placeholder
 
-    let vps = vps_service::create_vps(&state.db, &hetzner_client, user_id, payload).await?;
+    let vps = vps_service::create_vps(&state.db, &state.hetzner_client, user_id, payload).await?;
     Ok(Json(vps))
 }
 
