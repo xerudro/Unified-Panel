@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 const HETZNER_API_URL: &str = "https://api.hetzner.cloud/v1";
 
+#[derive(Clone)]
 pub struct HetznerClient {
     api_token: String,
     client: reqwest::Client,
@@ -22,12 +23,16 @@ impl HetznerClient {
         }
     }
 
-    async fn request<T: serde::de::DeserializeOwned>(
+    async fn request<T, B>(
         &self,
         method: reqwest::Method,
         endpoint: &str,
-        body: Option<impl serde::Serialize>,
-    ) -> Result<T, AppError> {
+        body: Option<B>,
+    ) -> Result<T, AppError>
+    where
+        T: serde::de::DeserializeOwned,
+        B: serde::Serialize,
+    {
         let url = format!("{}{}", HETZNER_API_URL, endpoint);
 
         let mut req = self.client
@@ -180,7 +185,7 @@ pub async fn create_vps(
         .first()
         .and_then(|p| p.price_monthly.gross.parse::<f64>().ok());
 
-    // Save to database with rollback on failure
+    // Save to database - if this fails, rollback by deleting the Hetzner server
     let vps = sqlx::query_as::<_, Vps>(
         "INSERT INTO vps (
             id, user_id, name, hetzner_id, status, server_type, location, image,
@@ -206,20 +211,20 @@ pub async fn create_vps(
     .bind(Utc::now())
     .bind(Utc::now())
     .fetch_one(db)
-    .await;
-
-    // If database insertion fails, rollback by deleting the Hetzner server
-    match vps {
-        Ok(vps) => Ok(vps),
-        Err(db_err) => {
-            // Attempt to delete the orphaned server
-            if let Err(delete_err) = hetzner_client.delete_server(hetzner_server.id).await {
-                // Log the delete error but return the original database error
-                tracing::error!("Failed to rollback Hetzner server {}: {:?}", hetzner_server.id, delete_err);
+    .await
+    .map_err(|e| {
+        // Database insert failed - attempt to clean up the Hetzner server
+        let hetzner_id = hetzner_server.id;
+        let client = hetzner_client.clone();
+        tokio::spawn(async move {
+            if let Err(cleanup_err) = client.delete_server(hetzner_id).await {
+                tracing::error!("Failed to cleanup Hetzner server {} after database error: {}", hetzner_id, cleanup_err);
             }
-            Err(db_err.into())
-        }
-    }
+        });
+        e
+    })?;
+
+    Ok(vps)
 }
 
 pub async fn update_vps(
