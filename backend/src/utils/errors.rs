@@ -42,7 +42,10 @@ impl IntoResponse for AppError {
             AppError::InternalError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
             AppError::DatabaseError(err) => {
                 tracing::error!("Database error: {:?}", err);
-                (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string())
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Database error".to_string(),
+                )
             }
         };
 
