@@ -107,6 +107,29 @@
 
         <!-- Page Content -->
         <main class="flex-1 p-6 bg-gray-50 dark:bg-gray-900 overflow-auto">
+            <!-- Welcome Section with Role-based Messages -->
+            <div class="mb-8">
+                {% if user_role == "admin" %}
+                <h1 class="text-3xl font-bold mb-2">Admin Control Panel</h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Manage servers, clients, and infrastructure from your central dashboard
+                </p>
+                {% else if user_role == "reseller" %}
+                <h1 class="text-3xl font-bold mb-2">Reseller Management Dashboard</h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Manage hosting, clients, and services efficiently
+                </p>
+                {% else %}
+                <h1 class="text-3xl font-bold mb-2">Client Control Panel</h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Manage your hosting services and applications
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Hosting Overview Component -->
+            {% include "components/hosting_overview.html" %}
+
             <!-- Stats Grid with HTMX auto-refresh -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
                  hx-get="/api/dashboard/stats"
@@ -122,7 +145,7 @@
                             +12%
                         </span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-1">{{ total_servers | default(value="0") }}</h3>
+                    <h3 class="text-2xl font-bold mb-1">{{ total_servers }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Total Servers</p>
                 </div>
 
@@ -136,7 +159,7 @@
                             +8%
                         </span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-1">{{ total_websites | default(value="0") }}</h3>
+                    <h3 class="text-2xl font-bold mb-1">{{ total_websites }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Active Websites</p>
                 </div>
 
@@ -150,7 +173,7 @@
                             +24%
                         </span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-1">{{ total_users | default(value="0") }}</h3>
+                    <h3 class="text-2xl font-bold mb-1">{{ total_users }}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Users</p>
                 </div>
 

@@ -58,7 +58,7 @@ impl HetznerClient {
     }
 
     pub async fn create_server(&self, request: HetznerCreateServerRequest) -> Result<HetznerServer, AppError> {
-        let response: HetznerServerResponse = self.request(
+        let response: HetznerServerResponse = self.request::<HetznerServerResponse, HetznerCreateServerRequest>(
             reqwest::Method::POST,
             "/servers",
             Some(request),
@@ -78,7 +78,7 @@ impl HetznerClient {
     }
 
     pub async fn list_servers(&self) -> Result<Vec<HetznerServer>, AppError> {
-        let response: HetznerServersResponse = self.request(
+        let response: HetznerServersResponse = self.request::<HetznerServersResponse, ()>(
             reqwest::Method::GET,
             "/servers",
             None::<()>,
@@ -88,7 +88,7 @@ impl HetznerClient {
     }
 
     pub async fn delete_server(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::DELETE,
             &format!("/servers/{}", server_id),
             None::<()>,
@@ -98,7 +98,7 @@ impl HetznerClient {
     }
 
     pub async fn power_on(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::POST,
             &format!("/servers/{}/actions/poweron", server_id),
             None::<()>,
@@ -108,7 +108,7 @@ impl HetznerClient {
     }
 
     pub async fn power_off(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::POST,
             &format!("/servers/{}/actions/poweroff", server_id),
             None::<()>,
@@ -118,7 +118,7 @@ impl HetznerClient {
     }
 
     pub async fn reboot(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::POST,
             &format!("/servers/{}/actions/reboot", server_id),
             None::<()>,

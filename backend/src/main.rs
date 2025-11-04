@@ -45,8 +45,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Database migrations completed successfully");
 
+    // Create Hetzner client
+    let hetzner_client = services::vps_service::HetznerClient::new(
+        config.hetzner_api_token.clone().unwrap_or_default()
+    );
+
     // Create application state
-    let app_state = models::AppState::new(db_pool, config.clone());
+    let app_state = models::AppState::new(db_pool, config.clone(), hetzner_client);
 
     // Build routes
     let app = Router::new()

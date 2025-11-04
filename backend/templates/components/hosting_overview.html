@@ -1,0 +1,230 @@
+<!-- Hosting Overview Component -->
+<div class="space-y-6">
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Hosting Accounts -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <i data-lucide="package" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <span class="text-xs font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                    Active
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold mb-1" id="hosting-accounts-count">{{ total_websites }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Hosting Accounts</p>
+        </div>
+
+        <!-- Domains -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                    <i data-lucide="globe" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <span class="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full">
+                    Registered
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold mb-1" id="domains-count">78</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Domains</p>
+        </div>
+
+        <!-- Databases -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <i data-lucide="database" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30 px-2 py-1 rounded-full">
+                    Running
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold mb-1" id="databases-count">142</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Databases</p>
+        </div>
+
+        <!-- Email Accounts -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                    <i data-lucide="mail" class="w-6 h-6 text-orange-600 dark:text-orange-400"></i>
+                </div>
+                <span class="text-xs font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                    Active
+                </span>
+            </div>
+            <h3 class="text-2xl font-bold mb-1" id="email-accounts-count">234</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Email Accounts</p>
+        </div>
+    </div>
+
+    <!-- Storage & Bandwidth Overview -->
+    <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Storage Usage -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Storage Usage</h3>
+                <button class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                        hx-get="/api/dashboard/hosting/storage"
+                        hx-target="#storage-details"
+                        hx-swap="innerHTML">
+                    Refresh
+                </button>
+            </div>
+            <div id="storage-details" class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium">Total Storage</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">245 GB / 500 GB</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500" style="width: 49%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium">Databases</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">82 GB</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500" style="width: 16%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium">Emails</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">38 GB</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-500" style="width: 8%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium">Backups</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">125 GB</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500" style="width: 25%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bandwidth Usage -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Bandwidth Usage</h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400">Current Month</span>
+            </div>
+            <div id="bandwidth-details" class="space-y-4">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium">Total Transfer</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">1.2 TB / 5 TB</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500" style="width: 24%"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i data-lucide="arrow-up" class="w-4 h-4 text-orange-600 dark:text-orange-400"></i>
+                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Outgoing</span>
+                        </div>
+                        <p class="text-lg font-bold">856 GB</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i data-lucide="arrow-down" class="w-4 h-4 text-green-600 dark:text-green-400"></i>
+                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Incoming</span>
+                        </div>
+                        <p class="text-lg font-bold">344 GB</p>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-900">
+                    <div class="flex items-start space-x-2">
+                        <i data-lucide="info" class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5"></i>
+                        <p class="text-xs text-blue-800 dark:text-blue-300">
+                            Bandwidth resets on the 1st of each month. You're using 24% of your monthly allocation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <i data-lucide="plus-circle" class="w-8 h-8 text-blue-600 dark:text-blue-400 mb-2"></i>
+                <span class="text-sm font-medium">Create Website</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <i data-lucide="database" class="w-8 h-8 text-green-600 dark:text-green-400 mb-2"></i>
+                <span class="text-sm font-medium">New Database</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <i data-lucide="mail" class="w-8 h-8 text-purple-600 dark:text-purple-400 mb-2"></i>
+                <span class="text-sm font-medium">Add Email</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <i data-lucide="shield" class="w-8 h-8 text-orange-600 dark:text-orange-400 mb-2"></i>
+                <span class="text-sm font-medium">SSL Certificate</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Recent Hosting Activity -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Recent Hosting Activity</h3>
+            <a href="/hosting/activity" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">View All</a>
+        </div>
+        <div id="hosting-activity-list" class="space-y-3"
+             hx-get="/api/dashboard/hosting/activity"
+             hx-trigger="load, every 60s"
+             hx-swap="innerHTML">
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                        <i data-lucide="check" class="w-4 h-4 text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">SSL certificate installed</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">example.com</p>
+                    </div>
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">2 min ago</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                        <i data-lucide="upload" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">Backup completed</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">mywebsite.com</p>
+                    </div>
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                        <i data-lucide="database" class="w-4 h-4 text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">Database created</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">shop_db_prod</p>
+                    </div>
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">1 hour ago</span>
+            </div>
+        </div>
+    </div>
+</div>
