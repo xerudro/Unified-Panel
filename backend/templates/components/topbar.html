@@ -1,0 +1,32 @@
+<header class="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
+    <div class="flex items-center space-x-4">
+        <button @click="sidebarOpen = !sidebarOpen"
+                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <h1 class="text-xl font-semibold">{{ page_title }}</h1>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <!-- Search -->
+        <div class="relative">
+            <input type="search"
+                   placeholder="Search..."
+                   class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+            <i data-lucide="search" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
+        </div>
+
+        <!-- Notifications -->
+        <button class="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button @click="darkMode = !darkMode"
+                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i data-lucide="moon" x-show="!darkMode" class="w-5 h-5"></i>
+            <i data-lucide="sun" x-show="darkMode" class="w-5 h-5" x-cloak></i>
+        </button>
+    </div>
+</header>

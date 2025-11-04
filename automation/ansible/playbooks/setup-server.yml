@@ -1,0 +1,93 @@
+---
+# Ansible Playbook: Setup New Server
+# Usage: ansible-playbook setup-server.yml -i inventory/hosts.yml
+
+- name: Setup New Web Server
+  hosts: web_servers
+  become: yes
+  vars:
+    nodejs_version: "20"
+    postgresql_version: "15"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install essential packages
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - build-essential
+          - ufw
+          - fail2ban
+          - htop
+        state: present
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Install PostgreSQL
+      apt:
+        name:
+          - "postgresql-{{ postgresql_version }}"
+          - "postgresql-contrib-{{ postgresql_version }}"
+          - python3-psycopg2
+        state: present
+
+    - name: Start and enable PostgreSQL
+      systemd:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Install Node.js
+      shell: |
+        curl -fsSL https://deb.nodesource.com/setup_{{ nodejs_version }}.x | bash -
+        apt-get install -y nodejs
+      args:
+        creates: /usr/bin/node
+
+    - name: Configure UFW firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - "22"    # SSH
+        - "80"    # HTTP
+        - "443"   # HTTPS
+        - "3000"  # Application
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Create application user
+      user:
+        name: appuser
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Set up application directory
+      file:
+        path: /opt/unified-panel
+        state: directory
+        owner: appuser
+        group: appuser
+        mode: '0755'
+
+    - name: Display completion message
+      debug:
+        msg: "✅ Server setup completed successfully!"
