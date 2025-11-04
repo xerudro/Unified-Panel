@@ -172,14 +172,6 @@ CREATE INDEX idx_logs_user_id ON logs(user_id);
 CREATE INDEX idx_logs_server_id ON logs(server_id);
 CREATE INDEX idx_logs_created_at ON logs(created_at);
 
--- Insert default admin user (password: admin123 - CHANGE THIS!)
-INSERT INTO users (id, email, password_hash, role, created_at, updated_at, mfa_enabled)
-VALUES (
-    gen_random_uuid(),
-    'admin@unified-panel.local',
-    '$argon2id$v=19$m=19456,t=2,p=1$8X3FwVUxQDe8Kz5dVLsVxw$X7qJ5TKj9LZGqZrZDLWV5JxKHqLJQ5wZVU3f3qJ5TKk',
-    'admin',
-    NOW(),
-    NOW(),
-    false
-);
+-- IMPORTANT: No default admin user is created by this migration.
+-- Please create the first admin user during setup using the application or CLI.
+-- Refer to the documentation for instructions on securely creating the initial admin account.
