@@ -221,9 +221,10 @@ pub async fn create_vps(
             if let Err(delete_err) = hetzner_client.delete_server(hetzner_server.id).await {
                 // Log the deletion error but return the original database error
                 tracing::error!(
-                    "Failed to rollback Hetzner server {} after database error: {:?}",
+                    "Failed to rollback Hetzner server {} after database error: {:?}. Original DB error: {:?}",
                     hetzner_server.id,
-                    delete_err
+                    delete_err,
+                    e
                 );
             }
             Err(AppError::from(e))
