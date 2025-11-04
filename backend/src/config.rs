@@ -19,15 +19,12 @@ impl Config {
             port: std::env::var("PORT")
                 .unwrap_or_else(|_| "3000".to_string())
                 .parse()?,
-            database_url: std::env::var("DATABASE_URL")
-                .expect("DATABASE_URL must be set"),
-            jwt_secret: std::env::var("JWT_SECRET")
-                .expect("JWT_SECRET must be set"),
+            database_url: std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
+            jwt_secret: std::env::var("JWT_SECRET").expect("JWT_SECRET must be set"),
             jwt_expiration: std::env::var("JWT_EXPIRATION")
                 .unwrap_or_else(|_| "86400".to_string())
                 .parse()?,
-            session_secret: std::env::var("SESSION_SECRET")
-                .expect("SESSION_SECRET must be set"),
+            session_secret: std::env::var("SESSION_SECRET").expect("SESSION_SECRET must be set"),
             cors_origin: std::env::var("CORS_ORIGIN")
                 .unwrap_or_else(|_| "http://localhost:3000".to_string()),
             hetzner_api_token: std::env::var("HETZNER_API_TOKEN")

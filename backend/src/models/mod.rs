@@ -3,9 +3,9 @@ use crate::database::DbPool;
 use crate::services::vps_service::HetznerClient;
 use std::sync::Arc;
 
-pub mod user;
-pub mod server;
 pub mod auth;
+pub mod server;
+pub mod user;
 pub mod vps;
 
 #[derive(Clone)]

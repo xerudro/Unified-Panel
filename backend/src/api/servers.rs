@@ -1,13 +1,13 @@
-use axum::{
-    extract::{Path, State},
-    Json,
-};
-use uuid::Uuid;
 use crate::{
     models::{server::*, AppState},
     services::server_service,
     utils::errors::AppError,
 };
+use axum::{
+    extract::{Path, State},
+    Json,
+};
+use uuid::Uuid;
 
 pub async fn list_servers(
     State(state): State<AppState>,

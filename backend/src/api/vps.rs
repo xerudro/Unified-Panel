@@ -1,13 +1,13 @@
-use axum::{
-    extract::{Path, State},
-    Json,
-};
-use uuid::Uuid;
 use crate::{
     models::{vps::*, AppState},
     services::vps_service,
     utils::errors::AppError,
 };
+use axum::{
+    extract::{Path, State},
+    Json,
+};
+use uuid::Uuid;
 
 pub async fn list_vps(
     State(state): State<AppState>,
@@ -67,7 +67,9 @@ pub async fn power_on_vps(
         let vps = vps_service::sync_vps_status(&state.db, &state.hetzner_client, id).await?;
         Ok(Json(vps))
     } else {
-        Err(AppError::BadRequest("VPS not linked to Hetzner server".to_string()))
+        Err(AppError::BadRequest(
+            "VPS not linked to Hetzner server".to_string(),
+        ))
     }
 }
 
@@ -84,7 +86,9 @@ pub async fn power_off_vps(
         let vps = vps_service::sync_vps_status(&state.db, &state.hetzner_client, id).await?;
         Ok(Json(vps))
     } else {
-        Err(AppError::BadRequest("VPS not linked to Hetzner server".to_string()))
+        Err(AppError::BadRequest(
+            "VPS not linked to Hetzner server".to_string(),
+        ))
     }
 }
 
@@ -101,7 +105,9 @@ pub async fn reboot_vps(
         let vps = vps_service::sync_vps_status(&state.db, &state.hetzner_client, id).await?;
         Ok(Json(vps))
     } else {
-        Err(AppError::BadRequest("VPS not linked to Hetzner server".to_string()))
+        Err(AppError::BadRequest(
+            "VPS not linked to Hetzner server".to_string(),
+        ))
     }
 }
 
