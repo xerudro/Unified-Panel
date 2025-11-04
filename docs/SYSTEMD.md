@@ -462,7 +462,7 @@ Description=Daily Unified Panel Backup
 Requires=unified-panel-backup.service
 
 [Timer]
-OnCalendar=*-*-* 02:00:00
+OnCalendar=02:00
 Persistent=true
 
 [Install]

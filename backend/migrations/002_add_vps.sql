@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS vps (
     cpu_cores INTEGER NOT NULL,
     ram_gb INTEGER NOT NULL,
     disk_gb INTEGER NOT NULL,
-    monthly_cost DECIMAL(12, 4),
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+    monthly_cost DECIMAL(10, 2),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_vps_user_id ON vps(user_id);

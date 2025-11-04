@@ -23,12 +23,16 @@ impl HetznerClient {
         }
     }
 
-    async fn request<T: serde::de::DeserializeOwned>(
+    async fn request<T, B>(
         &self,
         method: reqwest::Method,
         endpoint: &str,
-        body: Option<impl serde::Serialize>,
-    ) -> Result<T, AppError> {
+        body: Option<B>,
+    ) -> Result<T, AppError>
+    where
+        T: serde::de::DeserializeOwned,
+        B: serde::Serialize,
+    {
         let url = format!("{}{}", HETZNER_API_URL, endpoint);
 
         let mut req = self.client
