@@ -89,7 +89,7 @@ impl HetznerClient {
     }
 
     pub async fn delete_server(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::DELETE,
             &format!("/servers/{}", server_id),
             None::<()>,
@@ -99,7 +99,7 @@ impl HetznerClient {
     }
 
     pub async fn power_on(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::POST,
             &format!("/servers/{}/actions/poweron", server_id),
             None::<()>,
@@ -109,7 +109,7 @@ impl HetznerClient {
     }
 
     pub async fn power_off(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::POST,
             &format!("/servers/{}/actions/poweroff", server_id),
             None::<()>,
@@ -119,7 +119,7 @@ impl HetznerClient {
     }
 
     pub async fn reboot(&self, server_id: i64) -> Result<(), AppError> {
-        self.request::<serde_json::Value>(
+        self.request::<serde_json::Value, ()>(
             reqwest::Method::POST,
             &format!("/servers/{}/actions/reboot", server_id),
             None::<()>,
@@ -185,8 +185,8 @@ pub async fn create_vps(
         .first()
         .and_then(|p| p.price_monthly.gross.parse::<f64>().ok());
 
-    // Save to database - if this fails, rollback by deleting the Hetzner server
-    let vps = sqlx::query_as::<_, Vps>(
+    // Save to database
+    let vps_result = sqlx::query_as::<_, Vps>(
         "INSERT INTO vps (
             id, user_id, name, hetzner_id, status, server_type, location, image,
             ipv4, ipv6, cpu_cores, ram_gb, disk_gb, monthly_cost, created_at, updated_at
@@ -211,20 +211,24 @@ pub async fn create_vps(
     .bind(Utc::now())
     .bind(Utc::now())
     .fetch_one(db)
-    .await
-    .map_err(|e| {
-        // Database insert failed - attempt to clean up the Hetzner server
-        let hetzner_id = hetzner_server.id;
-        let client = hetzner_client.clone();
-        tokio::spawn(async move {
-            if let Err(cleanup_err) = client.delete_server(hetzner_id).await {
-                tracing::error!("Failed to cleanup Hetzner server {} after database error: {}", hetzner_id, cleanup_err);
-            }
-        });
-        e
-    })?;
+    .await;
 
-    Ok(vps)
+    // If database insertion fails, rollback by deleting the Hetzner server
+    match vps_result {
+        Ok(vps) => Ok(vps),
+        Err(e) => {
+            // Attempt to delete the orphaned Hetzner server
+            if let Err(delete_err) = hetzner_client.delete_server(hetzner_server.id).await {
+                // Log the deletion error but return the original database error
+                tracing::error!(
+                    "Failed to rollback Hetzner server {} after database error: {:?}",
+                    hetzner_server.id,
+                    delete_err
+                );
+            }
+            Err(AppError::from(e))
+        }
+    }
 }
 
 pub async fn update_vps(
