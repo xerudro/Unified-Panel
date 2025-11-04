@@ -73,6 +73,7 @@ We **strongly recommend systemd** for production deployments as it provides:
 
 - Rust 1.75+ ([Install Rust](https://rustup.rs/))
 - PostgreSQL 15+ ([Install PostgreSQL](https://www.postgresql.org/download/))
+- Node.js 20+ ([Install Node.js](https://nodejs.org/))
 - Hetzner Cloud API Token ([Get Token](https://console.hetzner.cloud/))
 
 #### Installation
@@ -83,12 +84,19 @@ We **strongly recommend systemd** for production deployments as it provides:
    cd unified-panel
    ```
 
-2. **Set up the database**
+2. **Install dependencies**
+   ```bash
+   # Install frontend dependencies
+   make frontend-install
+   # Or manually: cd frontend && npm install
+   ```
+
+3. **Set up the database**
    ```bash
    createdb unified_panel
    ```
 
-3. **Configure environment**
+4. **Configure environment**
    ```bash
    cd backend
    cp .env.example .env
@@ -103,18 +111,39 @@ We **strongly recommend systemd** for production deployments as it provides:
    HETZNER_API_TOKEN=your-hetzner-cloud-api-token
    ```
 
-4. **Run migrations**
+5. **Run migrations**
    ```bash
    cargo install sqlx-cli --no-default-features --features postgres
    sqlx migrate run
    ```
 
-5. **Start the server**
+6. **Build frontend assets**
    ```bash
-   cargo run
+   make frontend-build
+   # Or manually: cd frontend && npm run build
    ```
 
-6. **Access the panel**
+7. **Start the development servers**
+
+   **Option 1: Using Make (recommended)**
+   ```bash
+   # Terminal 1: Frontend development (CSS watch)
+   make frontend-dev
+
+   # Terminal 2: Backend development
+   make backend-dev
+   ```
+
+   **Option 2: Manual**
+   ```bash
+   # Terminal 1: Watch CSS changes
+   cd frontend && npm run dev
+
+   # Terminal 2: Run Rust backend
+   cd backend && cargo run
+   ```
+
+8. **Access the panel**
    ```
    http://localhost:3000
    ```
