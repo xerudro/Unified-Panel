@@ -6,7 +6,6 @@ Collects system metrics and sends them to the Unified Panel API
 
 import psutil
 import requests
-import json
 import time
 from datetime import datetime
 
