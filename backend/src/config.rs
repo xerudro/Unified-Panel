@@ -9,6 +9,7 @@ pub struct Config {
     pub jwt_expiration: i64,
     pub session_secret: String,
     pub cors_origin: String,
+    pub hetzner_api_token: String,
 }
 
 impl Config {
@@ -29,6 +30,8 @@ impl Config {
                 .expect("SESSION_SECRET must be set"),
             cors_origin: std::env::var("CORS_ORIGIN")
                 .unwrap_or_else(|_| "http://localhost:3000".to_string()),
+            hetzner_api_token: std::env::var("HETZNER_API_TOKEN")
+                .expect("HETZNER_API_TOKEN must be set"),
         })
     }
 }
