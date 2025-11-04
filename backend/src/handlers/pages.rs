@@ -72,7 +72,7 @@ pub async fn dashboard() -> impl IntoResponse {
     // TODO: Get user from JWT and fetch real stats from database
     let template = DashboardTemplate {
         user_email: "admin@example.com".to_string(),
-        user_role: "admin".to_string(), // Can be: admin, reseller, user
+        user_role: "admin".to_string(), // Can be: admin, reseller, or client (any other value defaults to client behavior)
         total_servers: 12,
         total_websites: 45,
         total_users: 156,
