@@ -1,0 +1,103 @@
+{
+  "name": "Server Provisioning Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "unified-panel-provisioning"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "server_name",
+              "value": "={{ $json.body.server_name }}"
+            },
+            {
+              "name": "server_type",
+              "value": "={{ $json.body.server_type }}"
+            }
+          ]
+        }
+      },
+      "name": "Extract Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hetzner.cloud/v1/servers",
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "jsonParameters": true,
+        "bodyParametersJson": "={{ JSON.stringify({\n  name: $node['Extract Data'].json.server_name,\n  server_type: $node['Extract Data'].json.server_type,\n  image: 'ubuntu-22.04'\n}) }}"
+      },
+      "name": "Create Server",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "amount": 5,
+        "unit": "minutes"
+      },
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/servers",
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "jsonParameters": true,
+        "bodyParametersJson": "={{ JSON.stringify({\n  name: $node['Extract Data'].json.server_name,\n  ip_address: $node['Create Server'].json.server.public_net.ipv4.ip,\n  status: 'online'\n}) }}"
+      },
+      "name": "Update Panel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Server provisioned successfully!"
+            }
+          ]
+        }
+      },
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Extract Data", "type": "main", "index": 0 }]]
+    },
+    "Extract Data": {
+      "main": [[{ "node": "Create Server", "type": "main", "index": 0 }]]
+    },
+    "Create Server": {
+      "main": [[{ "node": "Wait", "type": "main", "index": 0 }]]
+    },
+    "Wait": {
+      "main": [[{ "node": "Update Panel", "type": "main", "index": 0 }]]
+    },
+    "Update Panel": {
+      "main": [[{ "node": "Success Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {}
+}

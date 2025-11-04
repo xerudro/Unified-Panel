@@ -1,0 +1,60 @@
+[package]
+name = "unified-panel"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Web Framework
+axum = { version = "0.7", features = ["macros", "multipart"] }
+tower = { version = "0.4", features = ["util", "timeout", "limit"] }
+tower-http = { version = "0.5", features = ["fs", "trace", "cors", "compression-gzip"] }
+tokio = { version = "1", features = ["full"] }
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "migrate"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Authentication & Security
+jsonwebtoken = "9"
+argon2 = "0.5"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+rand = "0.8"
+
+# Templating
+askama = { version = "0.12", features = ["with-axum"] }
+askama_axum = "0.4"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Environment & Configuration
+dotenvy = "0.15"
+config = "0.14"
+
+# Logging & Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Validation
+validator = { version = "0.18", features = ["derive"] }
+
+# HTTP Client (for external API calls)
+reqwest = { version = "0.11", features = ["json"] }
+
+# Error Handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Rate Limiting
+governor = "0.6"
+
+# TOTP for 2FA
+totp-rs = { version = "5.5", features = ["gen_secret"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

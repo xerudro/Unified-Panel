@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Unified Hosting Panel{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="fixed w-full top-0 z-50 glass-morphism">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                        <i data-lucide="server" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Unified Panel
+                    </span>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button @click="darkMode = !darkMode"
+                            class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        <i data-lucide="moon" x-show="!darkMode" class="w-5 h-5"></i>
+                        <i data-lucide="sun" x-show="darkMode" class="w-5 h-5" x-cloak></i>
+                    </button>
+
+                    <a href="/login"
+                       class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        Login
+                    </a>
+                    <a href="/register"
+                       class="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-1 flex items-center justify-center pt-20">
+        <div class="container mx-auto px-4 py-20">
+            <div class="text-center max-w-4xl mx-auto animate-fade-in">
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Modern Hosting Management
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12">
+                    Powerful, intuitive hosting control panel built with cutting-edge technology
+                </p>
+
+                <div class="flex flex-wrap justify-center gap-4 mb-16">
+                    <a href="/register"
+                       class="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200">
+                        Start Free Trial
+                    </a>
+                    <a href="/login"
+                       class="px-8 py-4 text-lg font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 transform hover:-translate-y-1 transition-all duration-200">
+                        Sign In
+                    </a>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="grid md:grid-cols-3 gap-8 mt-20">
+                    <div class="p-6 rounded-2xl glass-morphism hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Lightning Fast</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Built with Rust for maximum performance and reliability</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl glass-morphism hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Secure by Default</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Enterprise-grade security with 2FA and audit logging</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl glass-morphism hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="layers" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Fully Automated</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Automated deployments with Ansible and n8n workflows</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p>&copy; 2024 Unified Hosting Panel. Built with Rust, HTMX, and Tailwind CSS.</p>
+    </footer>
+</div>
+{% endblock %}

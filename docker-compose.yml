@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: unified-panel-db
+    environment:
+      POSTGRES_DB: unified_panel
+      POSTGRES_USER: panel_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - panel_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U panel_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  panel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unified-panel-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://panel_user:${DB_PASSWORD:-changeme}@postgres:5432/unified_panel
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret-in-production}
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-secret-in-production}
+      RUST_LOG: ${RUST_LOG:-info}
+      HOST: 0.0.0.0
+      PORT: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - panel_network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: unified-panel-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - panel
+    networks:
+      - panel_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  panel_network:
+    driver: bridge
