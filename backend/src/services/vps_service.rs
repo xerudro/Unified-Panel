@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 const HETZNER_API_URL: &str = "https://api.hetzner.cloud/v1";
 
+#[derive(Clone)]
 pub struct HetznerClient {
     api_token: String,
     client: reqwest::Client,
@@ -185,7 +186,7 @@ pub async fn create_vps(
         .and_then(|p| p.price_monthly.gross.parse::<f64>().ok());
 
     // Save to database
-    let vps = sqlx::query_as::<_, Vps>(
+    let vps_result = sqlx::query_as::<_, Vps>(
         "INSERT INTO vps (
             id, user_id, name, hetzner_id, status, server_type, location, image,
             ipv4, ipv6, cpu_cores, ram_gb, disk_gb, monthly_cost, created_at, updated_at
@@ -210,9 +211,25 @@ pub async fn create_vps(
     .bind(Utc::now())
     .bind(Utc::now())
     .fetch_one(db)
-    .await?;
+    .await;
 
-    Ok(vps)
+    // If database insertion fails, rollback by deleting the Hetzner server
+    match vps_result {
+        Ok(vps) => Ok(vps),
+        Err(e) => {
+            // Attempt to delete the orphaned Hetzner server
+            if let Err(delete_err) = hetzner_client.delete_server(hetzner_server.id).await {
+                // Log the deletion error but return the original database error
+                tracing::error!(
+                    "Failed to rollback Hetzner server {} after database error: {:?}. Original DB error: {:?}",
+                    hetzner_server.id,
+                    delete_err,
+                    e
+                );
+            }
+            Err(AppError::from(e))
+        }
+    }
 }
 
 pub async fn update_vps(
