@@ -52,9 +52,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         // Public routes
         .route("/", get(handlers::pages::index))
-        .route("/login", get(handlers::pages::login_page).post(api::auth::login))
-        .route("/register", get(handlers::pages::register_page).post(api::auth::register))
-
+        .route("/login", get(handlers::pages::login_page))
+        .route("/register", get(handlers::pages::register_page))
+        .route("/api/auth/login", post(api::auth::login))
+        .route("/api/auth/register", post(api::auth::register))
         // API routes
         .nest("/api", api::router())
 
