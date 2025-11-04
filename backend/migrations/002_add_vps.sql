@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS vps (
     cpu_cores INTEGER NOT NULL,
     ram_gb INTEGER NOT NULL,
     disk_gb INTEGER NOT NULL,
-    monthly_cost DECIMAL(10, 2),
+    monthly_cost DECIMAL(12, 4),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

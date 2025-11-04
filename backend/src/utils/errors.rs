@@ -4,6 +4,7 @@ use axum::{
     Json,
 };
 use serde_json::json;
+use std::fmt;
 
 #[derive(Debug)]
 pub enum AppError {
@@ -12,6 +13,18 @@ pub enum AppError {
     NotFound(String),
     InternalError(String),
     DatabaseError(sqlx::Error),
+}
+
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AppError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
+            AppError::Unauthorized(msg) => write!(f, "Unauthorized: {}", msg),
+            AppError::NotFound(msg) => write!(f, "Not Found: {}", msg),
+            AppError::InternalError(msg) => write!(f, "Internal Error: {}", msg),
+            AppError::DatabaseError(err) => write!(f, "Database Error: {}", err),
+        }
+    }
 }
 
 impl From<sqlx::Error> for AppError {

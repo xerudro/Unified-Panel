@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 const HETZNER_API_URL: &str = "https://api.hetzner.cloud/v1";
 
+#[derive(Clone)]
 pub struct HetznerClient {
     api_token: String,
     client: reqwest::Client,
@@ -180,7 +181,7 @@ pub async fn create_vps(
         .first()
         .and_then(|p| p.price_monthly.gross.parse::<f64>().ok());
 
-    // Save to database
+    // Save to database - if this fails, rollback by deleting the Hetzner server
     let vps = sqlx::query_as::<_, Vps>(
         "INSERT INTO vps (
             id, user_id, name, hetzner_id, status, server_type, location, image,
@@ -206,7 +207,18 @@ pub async fn create_vps(
     .bind(Utc::now())
     .bind(Utc::now())
     .fetch_one(db)
-    .await?;
+    .await
+    .map_err(|e| {
+        // Database insert failed - attempt to clean up the Hetzner server
+        let hetzner_id = hetzner_server.id;
+        let client = hetzner_client.clone();
+        tokio::spawn(async move {
+            if let Err(cleanup_err) = client.delete_server(hetzner_id).await {
+                tracing::error!("Failed to cleanup Hetzner server {} after database error: {}", hetzner_id, cleanup_err);
+            }
+        });
+        e
+    })?;
 
     Ok(vps)
 }
