@@ -236,7 +236,6 @@ pub async fn create_vps(
                 // Log the deletion error but return the original database error
                 tracing::error!(
                     "Failed to rollback Hetzner server {} after database error: {}. Original DB error: {:?}",
-                    "Failed to rollback Hetzner server {} after database error: {:?}. Original DB error: {:?}",
                     hetzner_server.id,
                     delete_err,
                     e
