@@ -180,7 +180,7 @@ pub async fn create_vps(
         .first()
         .and_then(|p| p.price_monthly.gross.parse::<f64>().ok());
 
-    // Save to database
+    // Save to database with rollback on failure
     let vps = sqlx::query_as::<_, Vps>(
         "INSERT INTO vps (
             id, user_id, name, hetzner_id, status, server_type, location, image,
@@ -206,9 +206,20 @@ pub async fn create_vps(
     .bind(Utc::now())
     .bind(Utc::now())
     .fetch_one(db)
-    .await?;
+    .await;
 
-    Ok(vps)
+    // If database insertion fails, rollback by deleting the Hetzner server
+    match vps {
+        Ok(vps) => Ok(vps),
+        Err(db_err) => {
+            // Attempt to delete the orphaned server
+            if let Err(delete_err) = hetzner_client.delete_server(hetzner_server.id).await {
+                // Log the delete error but return the original database error
+                tracing::error!("Failed to rollback Hetzner server {}: {:?}", hetzner_server.id, delete_err);
+            }
+            Err(db_err.into())
+        }
+    }
 }
 
 pub async fn update_vps(
