@@ -9,7 +9,13 @@ A modern, high-performance hosting control panel built with **Rust**, **HTMX**, 
 ## Features
 
 ### Core Functionality
-- **Server Management** - Full CRUD operations for physical and virtual servers
+- **Server Management** - Full CRUD operations for physical servers
+- **Hetzner VPS Management** - Create, manage, and monitor Hetzner Cloud VPS instances
+  - Power on/off/reboot control
+  - Real-time status synchronization
+  - Multiple server types (CX11-CX51, CPX, CCX)
+  - Multiple data center locations (Germany, Finland, USA)
+  - Cloud-init support for automated setup
 - **User Management** - Role-based access control (Admin, Reseller, User)
 - **Real-time Monitoring** - CPU, memory, disk, and network metrics
 - **Authentication** - JWT-based auth with 2FA/TOTP support
@@ -48,15 +54,28 @@ A modern, high-performance hosting control panel built with **Rust**, **HTMX**, 
 | Automation | Bash, Python, Ansible, n8n |
 | Icons | Lucide Icons |
 
-## Quick Start
+## Deployment
 
-### Prerequisites
+**Primary Deployment Method**: Systemd (Native Linux Integration)
+**Alternative**: Docker (Optional)
+
+We **strongly recommend systemd** for production deployments as it provides:
+- Native Linux integration
+- Better resource management
+- Automatic restarts and recovery
+- Superior logging with journald
+- No container overhead
+- Easier debugging and monitoring
+
+### Quick Start (Development)
+
+#### Prerequisites
 
 - Rust 1.75+ ([Install Rust](https://rustup.rs/))
 - PostgreSQL 15+ ([Install PostgreSQL](https://www.postgresql.org/download/))
-- Node.js 20+ (for Tailwind CSS compilation)
+- Hetzner Cloud API Token ([Get Token](https://console.hetzner.cloud/))
 
-### Installation
+#### Installation
 
 1. **Clone the repository**
    ```bash
@@ -73,12 +92,20 @@ A modern, high-performance hosting control panel built with **Rust**, **HTMX**, 
    ```bash
    cd backend
    cp .env.example .env
-   # Edit .env with your configuration
+   nano .env  # Edit with your configuration
+   ```
+
+   **Required Configuration**:
+   ```env
+   DATABASE_URL=postgresql://postgres:password@localhost:5432/unified_panel
+   JWT_SECRET=your-super-secret-jwt-key-change-this
+   SESSION_SECRET=your-session-secret-key-change-this
+   HETZNER_API_TOKEN=your-hetzner-cloud-api-token
    ```
 
 4. **Run migrations**
    ```bash
-   cargo install sqlx-cli
+   cargo install sqlx-cli --no-default-features --features postgres
    sqlx migrate run
    ```
 
@@ -189,29 +216,42 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 
 Full API documentation: [docs/API.md](docs/API.md)
 
-## Deployment
+## Production Deployment
 
-### Docker (Recommended)
+### Systemd (Recommended - Primary Method)
+
+**Full production setup with systemd, PostgreSQL, and Nginx:**
+
+See the comprehensive [Systemd Deployment Guide](docs/SYSTEMD.md) for complete instructions.
+
+**Quick systemd setup:**
+
+```bash
+# Build release
+cargo build --release
+
+# Copy systemd service file
+sudo cp unified-panel.service /etc/systemd/system/
+
+# Enable and start
+sudo systemctl enable unified-panel
+sudo systemctl start unified-panel
+
+# Check status
+sudo systemctl status unified-panel
+```
+
+📖 **[Complete Systemd Guide →](docs/SYSTEMD.md)**
+
+### Docker (Alternative)
+
+Docker is provided as an **alternative** deployment option:
 
 ```bash
 docker-compose up -d
 ```
 
-### Manual Deployment
-
-1. Build the release binary:
-   ```bash
-   cargo build --release
-   ```
-
-2. Set up systemd service:
-   ```bash
-   sudo cp unified-panel.service /etc/systemd/system/
-   sudo systemctl enable unified-panel
-   sudo systemctl start unified-panel
-   ```
-
-3. Configure Nginx reverse proxy (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
+For most production deployments, we recommend systemd for better performance and native integration.
 
 ## Automation
 
@@ -257,14 +297,22 @@ Fully functional dark mode with smooth transitions.
 
 ## Roadmap
 
-- [ ] VPS management (Hetzner, DigitalOcean, AWS)
-- [ ] DNS management
+- [x] **VPS management (Hetzner Cloud)** ✅
+  - [x] Create/delete VPS instances
+  - [x] Power management (on/off/reboot)
+  - [x] Status synchronization
+  - [x] Multiple server types and locations
+  - [ ] Snapshots management
+  - [ ] Backups management
+  - [ ] Floating IPs
+  - [ ] Volumes
+- [ ] DNS management (PowerDNS integration)
 - [ ] Email server management
 - [ ] Website deployment automation
 - [ ] Billing & invoicing
-- [ ] Backup management
-- [ ] File manager
-- [ ] SSH terminal (web-based)
+- [ ] Backup management UI
+- [ ] File manager (web interface)
+- [ ] SSH terminal (web-based with xterm.js)
 - [ ] Mobile app (Flutter)
 
 ## Contributing
