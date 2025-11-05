@@ -59,7 +59,7 @@ impl HetznerClient {
     }
 
     pub async fn create_server(&self, request: HetznerCreateServerRequest) -> Result<HetznerServer, AppError> {
-        let response: HetznerServerResponse = self.request(
+        let response: HetznerServerResponse = self.request::<HetznerServerResponse, HetznerCreateServerRequest>(
             reqwest::Method::POST,
             "/servers",
             Some(request),
@@ -79,7 +79,7 @@ impl HetznerClient {
     }
 
     pub async fn list_servers(&self) -> Result<Vec<HetznerServer>, AppError> {
-        let response: HetznerServersResponse = self.request(
+        let response: HetznerServersResponse = self.request::<HetznerServersResponse, ()>(
             reqwest::Method::GET,
             "/servers",
             None::<()>,

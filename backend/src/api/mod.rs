@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod dashboard;
 pub mod servers;
 pub mod users;
 pub mod vps;
@@ -33,4 +34,12 @@ pub fn router() -> Router<AppState> {
         // User routes
         .route("/users", get(users::list_users).post(users::create_user))
         .route("/users/:id", get(users::get_user).put(users::update_user).delete(users::delete_user))
+
+        // Dashboard routes
+        .route("/dashboard/stats", get(dashboard::get_stats))
+        .route("/dashboard/activity", get(dashboard::get_activity))
+        .route("/dashboard/health", get(dashboard::get_health))
+        .route("/dashboard/servers", get(dashboard::get_servers))
+        .route("/dashboard/hosting/activity", get(dashboard::get_hosting_activity))
+        .route("/dashboard/hosting/storage", get(dashboard::get_hosting_storage))
 }

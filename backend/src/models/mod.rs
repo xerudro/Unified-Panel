@@ -12,16 +12,15 @@ pub mod vps;
 pub struct AppState {
     pub db: DbPool,
     pub config: Arc<Config>,
-    pub hetzner_client: HetznerClient,
+    pub hetzner_client: Arc<HetznerClient>,
 }
 
 impl AppState {
-    pub fn new(db: DbPool, config: Config) -> Self {
-        let hetzner_client = HetznerClient::new(config.hetzner_api_token.clone());
+    pub fn new(db: DbPool, config: Config, hetzner_client: HetznerClient) -> Self {
         Self {
             db,
             config: Arc::new(config),
-            hetzner_client,
+            hetzner_client: Arc::new(hetzner_client),
         }
     }
 }
