@@ -153,7 +153,7 @@ make build  # Builds both frontend CSS and Rust binary
 - **Page Handlers**: `src/handlers/pages.rs` - Server-side rendered pages
 - **Services**: `src/services/` - Business logic layer
 - **Models**: `src/models/` - Database entities
-- **Templates**: `templates/` - Askama HTML templates
+- **Templates**: `backend/templates/` - Askama HTML templates
 - **Static Assets**: `backend/static/` - Served directly by Axum
 
 ## Testing Strategy
