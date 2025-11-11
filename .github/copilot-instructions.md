@@ -98,7 +98,7 @@ return Err(AppError::ValidationError("Invalid input".to_string()));
 </div>
 
 <!-- Status badges -->
-<span class="px-2 py-1 rounded-full text-xs {{ VPSStatus.getColor(status) }}">
+<span class="px-2 py-1 rounded-full text-xs {{ status_color }}">
     {{ status|title }}
 </span>
 
