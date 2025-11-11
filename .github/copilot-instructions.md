@@ -77,7 +77,7 @@ sqlx migrate run
 ```rust
 // Use AppError enum from utils/errors.rs
 return Err(AppError::NotFound("VPS not found".to_string()));
-return Err(AppError::ValidationError("Invalid input".to_string()));
+return Err(AppError::BadRequest("Invalid input".to_string()));
 ```
 
 ### Hetzner API Integration
