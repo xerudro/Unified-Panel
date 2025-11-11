@@ -154,7 +154,7 @@ make build  # Builds both frontend CSS and Rust binary
 - **Services**: `src/services/` - Business logic layer
 - **Models**: `src/models/` - Database entities
 - **Templates**: `templates/` - Askama HTML templates
-- **Static Assets**: `static/` - Served directly by Axum
+- **Static Assets**: `backend/static/` - Served directly by Axum
 
 ## Testing Strategy
 
